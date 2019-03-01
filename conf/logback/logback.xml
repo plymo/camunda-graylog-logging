@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="grayLog" class="de.siegmar.logbackgelf.GelfUdpAppender">
+        <graylogHost>graylog-server</graylogHost>
+        <graylogPort>6668</graylogPort>
+        <maxChunkSize>508</maxChunkSize>
+        <useCompression>true</useCompression>
+        <layout class="de.siegmar.logbackgelf.GelfLayout">
+            <includeLevelName>true</includeLevelName>
+            <includeRootCauseData>true</includeRootCauseData>
+            <includeMdcData>true</includeMdcData>
+            <fullPatternLayout class="ch.qos.logback.classic.PatternLayout">
+                <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg%n</pattern>
+            </fullPatternLayout>
+            <staticField>application_name:camunda</staticField>
+            <staticField>environment:dev</staticField>
+            <staticField>docker_container:{docker_container_name}</staticField>
+        </layout>
+    </appender>
+
+    <appender name="asyncGrayLog" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="grayLog"/>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="console"/>
+        <appender-ref ref="asyncGrayLog"/>
+    </root>
+
+</configuration>
